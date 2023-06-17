@@ -2,7 +2,7 @@ KoolCenter RustDesk Server Changelog
 ===========================================
 
 1.0
-   - add	rustdesk_server二进v1.1.7版本（armv7版本，采用upx --lzma --best压缩）
+   - add	rustdesk_server二进制v1.1.7版本（armv7版本，采用upx --lzma --best压缩）
    - add	使用perp实时启动进程并守护
    - add	新增了帮助界面，鼠标移动到左侧栏文字即可见
    - add	可设置强制使用加密方式
