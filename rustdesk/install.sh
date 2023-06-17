@@ -155,13 +155,14 @@ install_now() {
 	dbus_nset rustdesk_hbbs_port "21116"
 	dbus_nset rustdesk_hbbr_port "21117"
 	dbus_nset rustdesk_is_encrypted "0"
-	dbus_nset rustdesk_hbbr_version "$rustdesk_hbbr_version"
-	dbus_nset rustdesk_hbbs_version "$rustdesk_hbbs_version"
+	dbus set rustdesk_hbbr_version=$rustdesk_hbbr_version
+	dbus set rustdesk_hbbs_version=$rustdesk_hbbs_version
 
 	# 设置证书信息
 	/koolshare/bin/rustdesk-utils genkeypair |awk '{print $3}' > /tmp/upload/rustdesk_key_cert.tmp
 	local rustdesk_key_pub=$(cat /tmp/upload/rustdesk_key_cert.tmp |awk 'FNR == 1')
 	local rustdesk_key_priv=$(cat /tmp/upload/rustdesk_key_cert.tmp  |awk 'FNR == 2')
+	rm -f /tmp/upload/rustdesk_key_cert.tmp >/dev/null 2>&1
 	# 写入证书
 	echo $rustdesk_key_pub > /koolshare/configs/rustdesk/id_ed25519.pub
 	echo $rustdesk_key_priv > /koolshare/configs/rustdesk/id_ed25519
