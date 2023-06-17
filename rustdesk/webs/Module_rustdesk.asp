@@ -321,7 +321,7 @@ function close() {
 	}
 }
 
-
+var runLogInterval;
 function get_run_log(type){
 	if(STATUS_FLAG == 0) return;
 	var url= '/_temp/rustdesk_hbbr_run_log.txt';
@@ -344,7 +344,11 @@ function get_run_log(type){
 			if (noChange > 10) {
 				return false;
 			} else {
-				setTimeout(`get_run_log(${type})`, 1500);
+			    if(! runLogInterval){
+			        runLogInterval = setInterval(()=>{
+			            get_run_log(type)
+			        },1500);
+			    }
 			}
 			retArea.value = response;
 
@@ -378,6 +382,8 @@ function show_log_pannel(type){
 function hide_log_pannel(){
 	E("log_pannel_div").style.visibility = "hidden";
 	STATUS_FLAG = 0;
+	clearInterval(runLogInterval);
+	runLogInterval=null;
 }
 
 function open_rustdesk_hint(itemNum) {
@@ -393,12 +399,12 @@ function open_rustdesk_hint(itemNum) {
 		_caption = "运行状态";
 	}
 	if (itemNum == 3) {
-		statusmenu = "&nbsp;&nbsp;&nbsp;&nbsp;点击【rustdesk运行日志】可以实时查看rustdesk中继服务器程序的运行情况。"
+		statusmenu = "&nbsp;&nbsp;&nbsp;&nbsp;点击【rustdesk运行日志】可以实时查看rustdesk中继服务器程序的运行情况。<br/><br/>"
 		_caption = "信息获取";
 	}
 	if (itemNum == 4) {
 		statusmenu = "&nbsp;&nbsp;&nbsp;&nbsp;仅允许加密访问<br/><br/>"
-		statusmenu = "&nbsp;&nbsp;&nbsp;&nbsp;开启此选项您将禁止没有key的用户建立非加密连接"
+		statusmenu = "&nbsp;&nbsp;&nbsp;&nbsp;开启此选项您将禁止没有key的用户建立非加密连接<br/><br/>"
 		_caption = "加密访问";
 	}
 	if (itemNum == 5) {
@@ -406,22 +412,22 @@ function open_rustdesk_hint(itemNum) {
 		_caption = "加密访问";
 	}
 	if (itemNum == 6) {
-		statusmenu = "&nbsp;&nbsp;&nbsp;&nbsp;此处允许自定义hbbs的端口，hbbs服务是用于ID服务。"
-		statusmenu = "&nbsp;&nbsp;&nbsp;&nbsp;默认端口为：21116，自动推断：21115/21118端口"
+		statusmenu = "&nbsp;&nbsp;&nbsp;&nbsp;此处允许自定义hbbs的端口，hbbs服务是用于ID服务。<br/><br/>"
+		statusmenu = "&nbsp;&nbsp;&nbsp;&nbsp;默认端口为：21116，自动推断：21115/21118端口<br/><br/>"
 		_caption = "hbbs端口";
 	}
 	if (itemNum == 7) {
-		statusmenu = "&nbsp;&nbsp;&nbsp;&nbsp;此处允许展示hbbr的端口，hbbr服务是用于中继服务。"
-		statusmenu += "&nbsp;&nbsp;&nbsp;&nbsp;由于相关服务会自动推断端口，故只需填写hbbs端口，其他端口自动推断。"
-		statusmenu += "&nbsp;&nbsp;&nbsp;&nbsp;默认端口：21117，自动推断：21119"
+		statusmenu = "&nbsp;&nbsp;&nbsp;&nbsp;此处展示hbbr的端口，hbbr服务是用于中继服务。<br/><br/>"
+		statusmenu += "&nbsp;&nbsp;&nbsp;&nbsp;由于相关服务会自动推断端口，故只需填写hbbs端口，其他端口自动推断。<br/><br/>"
+		statusmenu += "&nbsp;&nbsp;&nbsp;&nbsp;默认端口：21117，自动推断：21119<br/><br/>"
 		_caption = "hbbs端口";
 	}
 	if (itemNum == 8) {
 		statusmenu = "&nbsp;&nbsp;&nbsp;&nbsp;hbbr中继服务器地址<br/><br/>"
 		statusmenu += "&nbsp;&nbsp;&nbsp;&nbsp;如果填写则配置客户端的时候不用填写中继服务器地址，hbbs服务会自动转发到中继服务器。<br/><br/>"
 		statusmenu += "&nbsp;&nbsp;&nbsp;&nbsp;如果未使用默认端口则需要填写hbbr服务端口。<br/><br/>"
-		statusmenu += "&nbsp;&nbsp;&nbsp;&nbsp;示例（默认端口）：rustdesk.examplt.com<br/><br/>"
-		statusmenu += "&nbsp;&nbsp;&nbsp;&nbsp;示例（非默认端口）：rustdesk.examplt.com:11115<br/><br/>"
+		statusmenu += "&nbsp;&nbsp;&nbsp;&nbsp;示例1：rustdesk.example.com<br/><br/>"
+		statusmenu += "&nbsp;&nbsp;&nbsp;&nbsp;示例2：rustdesk.example.com:11115<br/><br/>"
 		_caption = "中继服务器地址";
 	}
 
@@ -495,8 +501,8 @@ function guessHbbrPort(obj){
 		<table cellpadding="5" cellspacing="0" id="log_pannel_table" class="loadingBarBlock" style="width:960px" align="center">
 			<tr>
 				<td height="100">
-					<div style="text-align: center;font-size: 18px;color: #99FF00;padding: 10px;font-weight: bold;">RustDesk中继服务器日志信息</div>
-					<div style="margin-left:15px"><i>🗒️此处展示RustDesk中继服务器的运行日志...</i></div>
+					<div style="text-align: center;font-size: 18px;color: #99FF00;padding: 10px;font-weight: bold;">RustDesk服务器日志信息</div>
+					<div style="margin-left:15px"><i>🗒️此处展示RustDesk服务器的运行日志...</i></div>
 					<div style="margin-left:15px;margin-right:15px;margin-top:10px;outline: 1px solid #3c3c3c;overflow:hidden">
 						<textarea cols="50" rows="32" wrap="off" readonly="readonly" id="log_content_rustdesk" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="border:1px solid #000;width:99%; font-family:'Lucida Console'; font-size:11px;background:transparent;color:#FFFFFF;outline: none;padding-left:5px;padding-right:22px;line-height:1.3;overflow-x:hidden"></textarea>
 					</div>
@@ -580,7 +586,7 @@ function guessHbbrPort(obj){
 													</td>
 												</tr>
 												<tr id="rustdesk_cert_key_tr">
-													<th><a onmouseover="mOver(this, 5)" onmouseout="mOut(this)" class="hintstyle" href="javascript:void(0);">加密请求使用的key<lable id="warn_cdn" style="color:red;margin-left:5px"><lable></a></th>
+													<th><a onmouseover="mOver(this, 5)" onmouseout="mOut(this)" class="hintstyle" href="javascript:void(0);">加密访问Key<lable id="warn_cdn" style="color:red;margin-left:5px"><lable></a></th>
 													<td>
 													<input type="text" id="rustdesk_key_pub" style="width: 95%;" class="input_3_table" autocorrect="off" autocapitalize="off" style="background-color: rgb(89, 110, 116);" value="" disabled="disabled">
 													</td>
@@ -592,7 +598,7 @@ function guessHbbrPort(obj){
 													</td>
 												</tr>
 												<tr id="rustdesk_hbbr_port_tr">
-													<th><a onmouseover="mOver(this, 7)" onmouseout="mOut(this)" class="hintstyle" href="javascript:void(0);">hbbr服务端口(自动)</a></th>
+													<th><a onmouseover="mOver(this, 7)" onmouseout="mOut(this)" class="hintstyle" href="javascript:void(0);">hbbr服务端口</a></th>
 													<td>
 														<input type="text" id="rustdesk_hbbr_port" style="width: 50px;" maxlength="5" class="input_3_table" autocorrect="off" autocapitalize="off" style="background-color: rgb(89, 110, 116);" value="21117" disabled="disabled">
 													</td>

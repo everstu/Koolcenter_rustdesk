@@ -9,6 +9,7 @@ rustdesk_db_flie_path=/koolshare/configs/rustdesk/
 bin_all_run="1"
 BASH=${0##*/}
 ARGS=$@
+connect_key=
 
 set_lock() {
 	exec 233>${LOCK_FILE}
@@ -53,9 +54,12 @@ dbus_rm() {
 }
 
 start() {
+	# 0. config ENV
+	configServerEnv
+
 	# 1. stop first
-  stop_process "hbbs"
-  stop_process "hbbr"
+  stop_process
+  sleep 5
 
 	# 2. start process
 	start_process
@@ -64,17 +68,22 @@ start() {
   close_port >/dev/null 2>&1
   open_port
 
-  echo_date "插件已成功开启！"
+  echo_date "✅️插件已成功开启！"
 }
 
 stop_plugin(){
   # 1. stop process
-  stop_process "hbbs"
-  stop_process "hbbr"
+  stop_process
   # 2.close prot
   close_port >/dev/null 2>&1
 
-  echo_date "插件已关闭！"
+  echo_date "❌️插件已关闭！"
+}
+
+configServerEnv(){
+	if [ "$rustdesk_is_encrypted" == "1" ];then
+		connect_key=$rustdesk_key_pub
+	fi
 }
 
 start_process() {
@@ -82,7 +91,7 @@ start_process() {
 	usleep 250000
   start_hbbr
   if [ -z ${bin_all_run} ];then
-  	echo_date "进程启动失败，停止插件..."
+  	echo_date "❌️进程启动失败，停止插件..."
   	stop_plugin
   	exit
   fi
@@ -115,7 +124,7 @@ start_hbbs(){
 		source /koolshare/scripts/base.sh
 		export ENCRYPTED_ONLY=$rustdesk_is_encrypted
 		export DB_URL=${rustdesk_db_flie_path}db_v2.sqlite3
-		export KEY=$rustdesk_key_pub
+		export KEY=$connect_key
 		export KEY_PUB=$rustdesk_key_pub
 		export KEY_PRIV=$rustdesk_key_priv
 		export PORT=$rustdesk_hbbs_port
@@ -145,7 +154,7 @@ start_hbbr(){
 		#!/bin/sh
 		source /koolshare/scripts/base.sh
 		export ENCRYPTED_ONLY=$rustdesk_is_encrypted
-		export KEY=$rustdesk_key_pub
+		export KEY=$connect_key
 		export KEY_PUB=$rustdesk_key_pub
 		export KEY_PRIV=$rustdesk_key_priv
 		export PORT=$rustdesk_hbbs_port
@@ -168,14 +177,19 @@ start_hbbr(){
 	detect_running_status hbbr
 }
 
-stop_process() {
+stop_process(){
+	kill_process "hbbs"
+	kill_process "hbbr"
+}
+
+kill_process() {
+	if [ -f "/koolshare/perp/$1/rc.main" ]; then
+		perpctl d $1 >/dev/null 2>&1
+	fi
+	rm -rf /koolshare/perp/$1 >/dev/null 2>&1
   local PROCESS_PID=$(pidof $1)
   if [ -n "${PROCESS_PID}" ]; then
-    echo_date "⛔关闭 $1 进程..."
-    if [ -f "/koolshare/perp/$1/rc.main" ]; then
-      perpctl d $1 >/dev/null 2>&1
-    fi
-    rm -rf /koolshare/perp/$1
+		echo_date "⛔关闭 $1 进程..."
     killall $1 >/dev/null 2>&1
     kill -9 "${PROCESS_PID}" >/dev/null 2>&1
   fi
@@ -198,8 +212,8 @@ open_port() {
     local rustdesk_hbbs_port2=$(($rustdesk_hbbs_port + 2))
     local rustdesk_hbbr_port=$(($rustdesk_hbbs_port + 1))
     local rustdesk_hbbr_port1=$((rustdesk_hbbr_port + 2))
-		echo_date "🧱添加防火墙入站规则，打开RustDesk 服务端口："
-		echo_date "${rustdesk_hbbs_port1} ${rustdesk_hbbs_port1} ${rustdesk_hbbr_port} ${rustdesk_hbbs_port2} ${rustdesk_hbbr_port1}"
+		echo_date "🧱添加防火墙入站规则..."
+		echo_date "🧱打开 RustDesk 服务端口：${rustdesk_hbbs_port1} ${rustdesk_hbbs_port} ${rustdesk_hbbr_port} ${rustdesk_hbbs_port2} ${rustdesk_hbbr_port1}"
 		iptables -I INPUT -p tcp --dport ${rustdesk_hbbs_port1} -j ACCEPT -m comment --comment "rustdesk_rule" >/dev/null 2>&1
 		iptables -I INPUT -p tcp --dport ${rustdesk_hbbs_port} -j ACCEPT -m comment --comment "rustdesk_rule" >/dev/null 2>&1
 		iptables -I INPUT -p udp --dport ${rustdesk_hbbs_port} -j ACCEPT -m comment --comment "rustdesk_rule" >/dev/null 2>&1
@@ -288,6 +302,7 @@ web_submit)
 	else
 		echo_date "ℹ️停止RustDesk Server！" | tee -a ${LOG_FILE}
 		stop_plugin | tee -a ${LOG_FILE}
+		dbus set rustdesk_enable=0
 	fi
 	echo XU6J03M16 | tee -a ${LOG_FILE}
 	unset_lock
