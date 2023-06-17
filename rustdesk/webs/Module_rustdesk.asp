@@ -559,8 +559,8 @@ function guessHbbrPort(obj){
 												<tr id="rustdesk_version_tr" style="display: none;">
 													<th><a onmouseover="mOver(this, 2)" onmouseout="mOut(this)" class="hintstyle" href="javascript:void(0);">版本信息</a></th>
 													<td>
-														<span style="margin-left:4px" id="rustdesk_hbbr_version"></span><br>
-														<span style="margin-left:4px" id="rustdesk_hbbs_version"></span>
+														<span style="margin-left:4px" id="rustdesk_hbbs_version"></span><br>
+														<span style="margin-left:4px" id="rustdesk_hbbr_version"></span>
 													</td>
 												</tr>
 												<tr id="rustdesk_info_tr" style="display: none;">
