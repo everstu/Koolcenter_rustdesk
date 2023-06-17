@@ -42,7 +42,7 @@ platform_test(){
 	local LINUX_VER=$(uname -r|awk -F"." '{print $1$2}')
 	local ARCH=$(uname -m)
 	if [ -d "/koolshare" -a -f "/usr/bin/skipd" -a "${LINUX_VER}" -ge "41" ];then
-			echo_date 机型："${MODEL} ${FW_TYPE_NAME} 符合安装要求，开始安装插件！"
+		echo_date 机型："${MODEL} ${FW_TYPE_NAME} 符合安装要求，开始安装插件！"
 	else
 		exit_install 1
 	fi
@@ -59,7 +59,7 @@ set_skin(){
 	if [ -n "${TUF_FLAG}" ];then
 		UI_TYPE="TUF"
 	fi
-	
+
 	if [ -z "${SC_SKIN}" -o "${SC_SKIN}" != "${UI_TYPE}" ];then
 		echo_date "安装${UI_TYPE}皮肤！"
 		nvram set sc_skin="${UI_TYPE}"
@@ -70,18 +70,18 @@ set_skin(){
 exit_install(){
 	local state=$1
 	case $state in
-		1)
-			echo_date "本插件适用于【koolshare 梅林改/官改 hnd/axhnd/axhnd.675x】固件平台！"
-			echo_date "你的固件平台不能安装！！!"
-			echo_date "本插件支持机型/平台：https://github.com/koolshare/rogsoft#rogsoft"
-			echo_date "退出安装！"
-			rm -rf /tmp/rustdesk* >/dev/null 2>&1
-			exit 1
-			;;
-		0|*)
-			rm -rf /tmp/rustdesk* >/dev/null 2>&1
-			exit 0
-			;;
+	1)
+		echo_date "本插件适用于【koolshare 梅林改/官改 hnd/axhnd/axhnd.675x】固件平台！"
+		echo_date "你的固件平台不能安装！！!"
+		echo_date "本插件支持机型/平台：https://github.com/koolshare/rogsoft#rogsoft"
+		echo_date "退出安装！"
+		rm -rf /tmp/rustdesk* >/dev/null 2>&1
+		exit 1
+	;;
+	0|*)
+		rm -rf /tmp/rustdesk* >/dev/null 2>&1
+		exit 0
+	;;
 	esac
 }
 
@@ -100,7 +100,7 @@ install_now() {
 	local DESCR="RustDesk是一款优秀的免费开源的远程控制软件，此插件提供RustDesk自建服务器功能。"
 	local PLVER=$(cat ${DIR}/version)
 
-  # 生成默认目录
+	# 生成默认目录
 	if [ ! -d /koolshare/configs/rustdesk ];then
 	  mkdir -p /koolshare/configs/rustdesk
 	fi
@@ -143,9 +143,9 @@ install_now() {
 	dbus set softcenter_module_${module}_title="${TITLE}"
 	dbus set softcenter_module_${module}_description="${DESCR}"
 
-  # 获取安装包二进制
-  local rustdesk_hbbr_version=$(echo $(/koolshare/bin/hbbr --version) |awk  '{print $2}');
-  local rustdesk_hbbs_version=$(echo $(/koolshare/bin/hbbs --version) |awk  '{print $2}');
+	# 获取安装包二进制
+	local rustdesk_hbbr_version=$(echo $(/koolshare/bin/hbbr --version) |awk  '{print $2}');
+	local rustdesk_hbbs_version=$(echo $(/koolshare/bin/hbbs --version) |awk  '{print $2}');
 
 	# 检查插件默认dbus值
 	dbus_nset rustdesk_hbbs_port "21116"
@@ -177,10 +177,10 @@ install_now() {
 }
 
 install() {
-  get_model
-  get_fw_type
-  platform_test
-  install_now
+	get_model
+	get_fw_type
+	platform_test
+	install_now
 }
 
 install

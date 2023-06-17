@@ -27,12 +27,12 @@ unset_lock() {
 
 number_test() {
 	case $1 in
-	'' | *[!0-9]*)
+		'' | *[!0-9]*)
 		echo 1
-		;;
+	;;
 	*)
 		echo 0
-		;;
+	;;
 	esac
 }
 
@@ -58,26 +58,26 @@ start() {
 	configServerEnv
 
 	# 1. stop first
-  stop_process
-  sleep 5
+	stop_process
+	sleep 5
 
 	# 2. start process
 	start_process
 
 	# 3. open port
-  close_port >/dev/null 2>&1
-  open_port
+	close_port >/dev/null 2>&1
+	open_port
 
-  echo_date "✅️插件已成功开启！"
+	echo_date "✅️插件已成功开启！"
 }
 
 stop_plugin(){
-  # 1. stop process
-  stop_process
-  # 2.close prot
-  close_port >/dev/null 2>&1
+	# 1. stop process
+	stop_process
+	# 2.close prot
+	close_port >/dev/null 2>&1
 
-  echo_date "❌️插件已关闭！"
+	echo_date "❌️插件已关闭！"
 }
 
 configServerEnv(){
@@ -87,14 +87,14 @@ configServerEnv(){
 }
 
 start_process() {
-  start_hbbs
+	start_hbbs
 	usleep 250000
-  start_hbbr
-  if [ -z ${bin_all_run} ];then
-  	echo_date "❌️进程启动失败，停止插件..."
-  	stop_plugin
-  	exit
-  fi
+	start_hbbr
+	if [ -z ${bin_all_run} ];then
+		echo_date "❌️进程启动失败，停止插件..."
+		stop_plugin
+		exit
+	fi
 }
 
 detect_running_status() {
@@ -131,8 +131,8 @@ start_hbbs(){
 		export RELAY_SERVERS=$rustdesk_hbbr_host
 		CMD="/koolshare/bin/hbbs"
 		if test \${1} = 'start' ; then
-			exec >${HBBS_RUN_LOG} 2>&1
-			exec \$CMD
+		exec >${HBBS_RUN_LOG} 2>&1
+		exec \$CMD
 		fi
 		exit 0
 
@@ -163,8 +163,8 @@ start_hbbr(){
 		#export TOTAL_BANDWIDTH=$rustdesk_hbbr_total_bandwidth
 		CMD="/koolshare/bin/hbbr"
 		if test \${1} = 'start' ; then
-			exec >${HBBR_RUN_LOG} 2>&1
-			exec \$CMD
+		exec >${HBBR_RUN_LOG} 2>&1
+		exec \$CMD
 		fi
 		exit 0
 
@@ -187,12 +187,13 @@ kill_process() {
 		perpctl d $1 >/dev/null 2>&1
 	fi
 	rm -rf /koolshare/perp/$1 >/dev/null 2>&1
-  local PROCESS_PID=$(pidof $1)
-  if [ -n "${PROCESS_PID}" ]; then
+
+	local PROCESS_PID=$(pidof $1)
+	if [ -n "${PROCESS_PID}" ]; then
 		echo_date "⛔关闭 $1 进程..."
-    killall $1 >/dev/null 2>&1
-    kill -9 "${PROCESS_PID}" >/dev/null 2>&1
-  fi
+		killall $1 >/dev/null 2>&1
+		kill -9 "${PROCESS_PID}" >/dev/null 2>&1
+	fi
 }
 
 open_port() {
@@ -208,10 +209,10 @@ open_port() {
 	fi
 	local HBBSMATCH=$(iptables -t filter -S INPUT | grep "rustdesk_rule")
 	if [ -z "${HBBSMATCH}" ]; then
-    local rustdesk_hbbs_port1=$(($rustdesk_hbbs_port - 1))
-    local rustdesk_hbbs_port2=$(($rustdesk_hbbs_port + 2))
-    local rustdesk_hbbr_port=$(($rustdesk_hbbs_port + 1))
-    local rustdesk_hbbr_port1=$((rustdesk_hbbr_port + 2))
+		local rustdesk_hbbs_port1=$(($rustdesk_hbbs_port - 1))
+		local rustdesk_hbbs_port2=$(($rustdesk_hbbs_port + 2))
+		local rustdesk_hbbr_port=$(($rustdesk_hbbs_port + 1))
+		local rustdesk_hbbr_port1=$((rustdesk_hbbr_port + 2))
 		echo_date "🧱添加防火墙入站规则..."
 		echo_date "🧱打开 RustDesk 服务端口：${rustdesk_hbbs_port1} ${rustdesk_hbbs_port} ${rustdesk_hbbr_port} ${rustdesk_hbbs_port2} ${rustdesk_hbbr_port1}"
 		iptables -I INPUT -p tcp --dport ${rustdesk_hbbs_port1} -j ACCEPT -m comment --comment "rustdesk_rule" >/dev/null 2>&1
@@ -265,26 +266,26 @@ start)
 	else
 		logger "[软件中心-开机自启]: RustDesk Server未开启，不自动启动！"
 	fi
-	;;
+;;
 boot_up)
 	if [ "${rustdesk_enable}" == "1" ]; then
 		true >${LOG_FILE}
 		start | tee -a ${LOG_FILE}
 		echo XU6J03M16 >> ${LOG_FILE}
 	fi
-	;;
+;;
 start_nat)
 	if [ "${rustdesk_enable}" == "1" ]; then
-    logger "[软件中心-NAT重启]: 打开RustDesk Server防火墙端口！"
-    sleep 10
-    close_port
-    sleep 2
-    open_port
+		logger "[软件中心-NAT重启]: 打开RustDesk Server防火墙端口！"
+		sleep 10
+		close_port
+		sleep 2
+		open_port
 	fi
-	;;
+;;
 stop)
 	stop_plugin
-	;;
+;;
 esac
 
 case $2 in
@@ -306,8 +307,8 @@ web_submit)
 	fi
 	echo XU6J03M16 | tee -a ${LOG_FILE}
 	unset_lock
-	;;
+;;
 status)
 	check_status
-	;;
+;;
 esac
