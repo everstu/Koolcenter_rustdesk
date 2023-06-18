@@ -10,6 +10,8 @@ bin_all_run="1"
 BASH=${0##*/}
 ARGS=$@
 connect_key=
+hbbsCMD="/koolshare/bin/hbbs"
+hbbrCMD="/koolshare/bin/hbbr"
 
 set_lock() {
 	exec 233>${LOCK_FILE}
@@ -77,12 +79,14 @@ stop_plugin(){
 	# 2.close prot
 	close_port >/dev/null 2>&1
 
-	echo_date "❌️插件已关闭！"
+	echo_date "❌️插件已停止运行！"
 }
 
 configServerEnv(){
 	if [ "$rustdesk_is_encrypted" == "1" ];then
 		connect_key=$rustdesk_key_pub
+		hbbsCMD="${hbbsCMD} -k _"
+		hbbrCMD="${hbbrCMD} -k _"
 	fi
 }
 
@@ -122,14 +126,13 @@ start_hbbs(){
 	cat >/koolshare/perp/hbbs/rc.main <<-EOF
 		#!/bin/sh
 		source /koolshare/scripts/base.sh
-		export ENCRYPTED_ONLY=$rustdesk_is_encrypted
 		export DB_URL=${rustdesk_db_flie_path}db_v2.sqlite3
-		export KEY=$connect_key
-		export KEY_PUB=$rustdesk_key_pub
-		export KEY_PRIV=$rustdesk_key_priv
 		export PORT=$rustdesk_hbbs_port
 		export RELAY_SERVERS=$rustdesk_hbbr_host
-		CMD="/koolshare/bin/hbbs"
+		echo -n $rustdesk_key_pub  > /koolshare/perp/hbbs/id_ed25519.pub
+		echo -n $rustdesk_key_priv  > /koolshare/perp/hbbs/id_ed25519
+
+		CMD="${hbbsCMD}"
 		if test \${1} = 'start' ; then
 		exec >${HBBS_RUN_LOG} 2>&1
 		exec \$CMD
@@ -153,15 +156,15 @@ start_hbbr(){
 	cat >/koolshare/perp/hbbr/rc.main <<-EOF
 		#!/bin/sh
 		source /koolshare/scripts/base.sh
-		export ENCRYPTED_ONLY=$rustdesk_is_encrypted
-		export KEY=$connect_key
-		export KEY_PUB=$rustdesk_key_pub
-		export KEY_PRIV=$rustdesk_key_priv
 		export PORT=$rustdesk_hbbs_port
 		#export LIMIT_SPEED=$rustdesk_speed_limit
 		#export SINGLE_BANDWIDTH=$rustdesk_hbbr_single_bandwidth
 		#export TOTAL_BANDWIDTH=$rustdesk_hbbr_total_bandwidth
-		CMD="/koolshare/bin/hbbr"
+
+		echo -n $rustdesk_key_pub  > /koolshare/perp/hbbr/id_ed25519.pub
+		echo -n $rustdesk_key_priv  > /koolshare/perp/hbbr/id_ed25519
+
+		CMD="${hbbrCMD}"
 		if test \${1} = 'start' ; then
 		exec >${HBBR_RUN_LOG} 2>&1
 		exec \$CMD

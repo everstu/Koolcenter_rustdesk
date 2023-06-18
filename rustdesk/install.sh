@@ -159,16 +159,20 @@ install_now() {
 	dbus set rustdesk_hbbs_version=$rustdesk_hbbs_version
 
 	# 设置证书信息
+	rustdesk_key_pub_tmp=$(dbus get rustdesk_key_pub)
+	rustdesk_key_priv_tmp=$(dbus get rustdesk_key_priv)
 	/koolshare/bin/rustdesk-utils genkeypair |awk '{print $3}' > /tmp/upload/rustdesk_key_cert.tmp
-	local rustdesk_key_pub=$(cat /tmp/upload/rustdesk_key_cert.tmp |awk 'FNR == 1')
-	local rustdesk_key_priv=$(cat /tmp/upload/rustdesk_key_cert.tmp  |awk 'FNR == 2')
+	if [ -z "${rustdesk_key_pub_tmp}" -o -z "${rustdesk_key_priv_tmp}" ];then
+		rustdesk_key_pub_tmp=$(cat /tmp/upload/rustdesk_key_cert.tmp |awk 'FNR == 1')
+		rustdesk_key_priv_tmp=$(cat /tmp/upload/rustdesk_key_cert.tmp |awk 'FNR == 2')
+	fi
 	rm -f /tmp/upload/rustdesk_key_cert.tmp >/dev/null 2>&1
 	# 写入证书
-	echo $rustdesk_key_pub > /koolshare/configs/rustdesk/id_ed25519.pub
-	echo $rustdesk_key_priv > /koolshare/configs/rustdesk/id_ed25519
+	echo -n $rustdesk_key_pub_tmp  > /koolshare/configs/rustdesk/id_ed25519.pub
+	echo -n $rustdesk_key_priv_tmp  > /koolshare/configs/rustdesk/id_ed25519
 	# 设置证书
-	dbus_nset rustdesk_key_pub  "$rustdesk_key_pub"
-	dbus_nset rustdesk_key_priv "$rustdesk_key_priv"
+	dbus set rustdesk_key_pub=$rustdesk_key_pub_tmp
+	dbus set rustdesk_key_priv=$rustdesk_key_priv_tmp
 
 	# reenable
 	if [ "${enable}" == "1" ];then
