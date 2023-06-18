@@ -61,7 +61,9 @@ start() {
 
 	# 1. stop first
 	stop_process
+	echo_date "ℹ️即将休眠 5 秒，等待端口释放..."
 	sleep 5
+	echo_date "ℹ️休眠结束，开启插件..."
 
 	# 2. start process
 	start_process
@@ -79,6 +81,8 @@ stop_plugin(){
 	# 2.close prot
 	close_port >/dev/null 2>&1
 
+	dbus set rustdesk_enable=0
+
 	echo_date "❌️插件已停止运行！"
 }
 
@@ -92,7 +96,6 @@ configServerEnv(){
 
 start_process() {
 	start_hbbs
-	usleep 250000
 	start_hbbr
 	if [ -z ${bin_all_run} ];then
 		echo_date "❌️进程启动失败，停止插件..."
@@ -129,13 +132,12 @@ start_hbbs(){
 		export DB_URL=${rustdesk_db_flie_path}db_v2.sqlite3
 		export PORT=$rustdesk_hbbs_port
 		export RELAY_SERVERS=$rustdesk_hbbr_host
-		echo -n $rustdesk_key_pub  > /koolshare/perp/hbbs/id_ed25519.pub
-		echo -n $rustdesk_key_priv  > /koolshare/perp/hbbs/id_ed25519
 
 		CMD="${hbbsCMD}"
 		if test \${1} = 'start' ; then
-		exec >${HBBS_RUN_LOG} 2>&1
-		exec \$CMD
+      cd /koolshare/configs/rustdesk/
+      exec >${HBBS_RUN_LOG} 2>&1
+      exec \$CMD
 		fi
 		exit 0
 
@@ -161,13 +163,11 @@ start_hbbr(){
 		#export SINGLE_BANDWIDTH=$rustdesk_hbbr_single_bandwidth
 		#export TOTAL_BANDWIDTH=$rustdesk_hbbr_total_bandwidth
 
-		echo -n $rustdesk_key_pub  > /koolshare/perp/hbbr/id_ed25519.pub
-		echo -n $rustdesk_key_priv  > /koolshare/perp/hbbr/id_ed25519
-
 		CMD="${hbbrCMD}"
 		if test \${1} = 'start' ; then
-		exec >${HBBR_RUN_LOG} 2>&1
-		exec \$CMD
+		  cd /koolshare/configs/rustdesk/
+      exec >${HBBR_RUN_LOG} 2>&1
+      exec \$CMD
 		fi
 		exit 0
 
@@ -258,6 +258,25 @@ check_status(){
 	http_response $status_text
 }
 
+regenerateKey(){
+  echo_date "ℹ️开始重新生成安全密钥对..."
+	/koolshare/bin/rustdesk-utils genkeypair |awk '{print $3}' > /tmp/upload/rustdesk_key_cert.tmp
+  rustdesk_key_pub_tmp=$(cat /tmp/upload/rustdesk_key_cert.tmp |awk 'FNR == 1')
+  rustdesk_key_priv_tmp=$(cat /tmp/upload/rustdesk_key_cert.tmp |awk 'FNR == 2')
+	rm -f /tmp/upload/rustdesk_key_cert.tmp >/dev/null 2>&1
+	# 写入证书
+	echo -n $rustdesk_key_pub_tmp  > /koolshare/configs/rustdesk/id_ed25519.pub
+	echo -n $rustdesk_key_priv_tmp  > /koolshare/configs/rustdesk/id_ed25519
+	# 设置证书
+	dbus set rustdesk_key_pub=$rustdesk_key_pub_tmp
+	dbus set rustdesk_key_priv=$rustdesk_key_priv_tmp
+  echo_date "🟢安全密钥对生成成功，即将重新启动插件..."
+
+	start
+
+	echo XU6J03M16 | tee -a /tmp/upload/rustdesk_regenerate_key_log.txt
+}
+
 case $1 in
 start)
 	if [ "${rustdesk_enable}" == "1" ]; then
@@ -306,10 +325,14 @@ web_submit)
 	else
 		echo_date "ℹ️停止RustDesk Server！" | tee -a ${LOG_FILE}
 		stop_plugin | tee -a ${LOG_FILE}
-		dbus set rustdesk_enable=0
 	fi
 	echo XU6J03M16 | tee -a ${LOG_FILE}
 	unset_lock
+;;
+regenerateKey)
+	true >/tmp/upload/rustdesk_regenerate_key_log.txt
+	http_response "$1"
+  regenerateKey  | tee -a /tmp/upload/rustdesk_regenerate_key_log.txt
 ;;
 status)
 	check_status

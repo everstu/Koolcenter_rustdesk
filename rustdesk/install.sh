@@ -110,10 +110,11 @@ install_now() {
 	fi
 
 	# stop signdog first
-	enable=$(dbus get rustdesk_enable)
-	if [ "${enable}" == "1" ];then
+	local rustEnable=$(dbus get rustdesk_enable)
+	if [ "${rustEnable}" == "1" ];then
 		echo_date "先关闭RustDesk插件！以保证更新成功！"
 		sh /koolshare/scripts/rustdesk_config.sh stop
+		dbus set rustdesk_enable=1
 	fi
 	
 	# remove some files first
@@ -175,7 +176,7 @@ install_now() {
 	dbus set rustdesk_key_priv=$rustdesk_key_priv_tmp
 
 	# reenable
-	if [ "${enable}" == "1" ];then
+	if [ "${rustEnable}" == "1" ];then
 		echo_date "重新启动RustDesk插件！"
 		sh /koolshare/scripts/rustdesk_config.sh boot_up
 	fi

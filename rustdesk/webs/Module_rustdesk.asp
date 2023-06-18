@@ -236,11 +236,16 @@ function save(flag){
 	});
 }
 
-function get_log(flag){
+function get_log(flag, path){
+    var url = "/_temp/rustdesk_log.txt";
+    if(path){
+        url = path;
+    }
+    console.log(path);
 	E("ok_button").style.visibility = "hidden";
 	showALLoadingBar();
 	$.ajax({
-		url: '/_temp/rustdesk_log.txt',
+		url: url,
 		type: 'GET',
 		cache:false,
 		dataType: 'text',
@@ -260,7 +265,7 @@ function get_log(flag){
 				count_down_close();
 				return false;
 			}
-			setTimeout("get_log(" + flag + ");", 500);
+			setTimeout(`get_log(${flag},"${url}")`, 500);
 			retArea.value = response.myReplace("XU6J03M16", " ");
 			retArea.scrollTop = retArea.scrollHeight;
 		},
@@ -384,6 +389,22 @@ function hide_log_pannel(){
 	STATUS_FLAG = 0;
 	clearInterval(runLogInterval);
 	runLogInterval=null;
+}
+
+function regenerateKey(){
+	var id = parseInt(Math.random() * 100000000);
+	var postData = {"id": id, "method": "rustdesk_config.sh", "params": ["regenerateKey"], "fields": []};
+	$.ajax({
+		type: "POST",
+		url: "/_api/",
+		data: JSON.stringify(postData),
+		dataType: "json",
+		success: function(response) {
+			if(response.result == id){
+				get_log(0,"/_temp/rustdesk_regenerate_key_log.txt");
+			}
+		}
+	});
 }
 
 function open_rustdesk_hint(itemNum) {
@@ -588,7 +609,8 @@ function guessHbbrPort(obj){
 												<tr id="rustdesk_cert_key_tr">
 													<th><a onmouseover="mOver(this, 5)" onmouseout="mOut(this)" class="hintstyle" href="javascript:void(0);">加密访问Key<lable id="warn_cdn" style="color:red;margin-left:5px"><lable></a></th>
 													<td>
-													<input type="text" id="rustdesk_key_pub" style="width: 95%;" class="input_3_table" autocorrect="off" autocapitalize="off" style="background-color: rgb(89, 110, 116);" value="" disabled="disabled">
+													<input type="text" id="rustdesk_key_pub" style="width: 75%;" class="input_3_table" autocorrect="off" autocapitalize="off" style="background-color: rgb(89, 110, 116);" value="" disabled="disabled">
+														<a type="button" class="ks_btn" href="javascript:void(0);" onclick="regenerateKey()" style="margin-left:5px;">重新生成</a>
 													</td>
 												</tr>
 												<tr id="rustdesk_hbbs_port_tr">

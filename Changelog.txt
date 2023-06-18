@@ -1,5 +1,8 @@
 KoolCenter RustDesk Server Changelog
 ===========================================
+1.1
+   - fix	修复无法使用加密连接的问题
+   - add	重新生成证书
 
 1.0
    - add	rustdesk_server二进制v1.1.7版本（armv7版本，采用upx --lzma --best压缩）
