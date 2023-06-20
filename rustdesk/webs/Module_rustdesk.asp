@@ -509,7 +509,7 @@ function guessHbbrPort(obj){
 						<li><font color="#ffcc00">在此期间请不要刷新本页面，不然可能导致问题！</font></li>
 					</div>
 					<div style="margin-left:15px;margin-right:15px;margin-top:10px;outline: 1px solid #3c3c3c;overflow:hidden">
-						<textarea cols="50" rows="25" wrap="off" readonly="readonly" id="log_content" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="border:1px solid #000;width:99%; font-family:'Lucida Console'; font-size:11px;background:transparent;color:#FFFFFF;outline: none;padding-left:5px;padding-right:22px;overflow-x:hidden"></textarea>
+						<textarea cols="50" rows="25" wrap="off" readonly="readonly" id="log_content" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="white-space:break-spaces;border:1px solid #000;width:99%; font-family:'Lucida Console'; font-size:11px;background:transparent;color:#FFFFFF;outline: none;padding-left:5px;padding-right:22px;overflow-x:hidden"></textarea>
 					</div>
 					<div id="ok_button" class="apply_gen" style="background:#000;visibility:hidden;">
 						<input id="ok_button1" class="button_gen" type="button" onclick="hideALLoadingBar()" value="确定">
@@ -525,7 +525,7 @@ function guessHbbrPort(obj){
 					<div style="text-align: center;font-size: 18px;color: #99FF00;padding: 10px;font-weight: bold;">RustDesk服务器日志信息</div>
 					<div style="margin-left:15px"><i>🗒️此处展示RustDesk服务器的运行日志...</i></div>
 					<div style="margin-left:15px;margin-right:15px;margin-top:10px;outline: 1px solid #3c3c3c;overflow:hidden">
-						<textarea cols="50" rows="32" wrap="off" readonly="readonly" id="log_content_rustdesk" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="border:1px solid #000;width:99%; font-family:'Lucida Console'; font-size:11px;background:transparent;color:#FFFFFF;outline: none;padding-left:5px;padding-right:22px;line-height:1.3;overflow-x:hidden"></textarea>
+						<textarea cols="50" rows="32" wrap="off" readonly="readonly" id="log_content_rustdesk" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="white-space:break-spaces;border:1px solid #000;width:99%; font-family:'Lucida Console'; font-size:11px;background:transparent;color:#FFFFFF;outline: none;padding-left:5px;padding-right:22px;line-height:1.3;overflow-x:hidden"></textarea>
 					</div>
 					<div id="ok_button_rustdesk" class="apply_gen" style="background:#000;">
 						<input class="button_gen" type="button" onclick="hide_log_pannel()" value="返回主界面">
