@@ -580,15 +580,15 @@ function guessHbbrPort(obj){
 												<tr id="rustdesk_version_tr" style="display: none;">
 													<th><a onmouseover="mOver(this, 2)" onmouseout="mOut(this)" class="hintstyle" href="javascript:void(0);">版本信息</a></th>
 													<td>
-														<span style="margin-left:4px" id="rustdesk_hbbs_version"></span><br>
-														<span style="margin-left:4px" id="rustdesk_hbbr_version"></span>
+														<span id="rustdesk_hbbs_version"></span><br>
+														<span id="rustdesk_hbbr_version"></span>
 													</td>
 												</tr>
 												<tr id="rustdesk_info_tr" style="display: none;">
 													<th><a onmouseover="mOver(this, 3)" onmouseout="mOut(this)" class="hintstyle" href="javascript:void(0);">信息获取</a></th>
 													<td>
-														<a type="button" class="ks_btn" href="javascript:void(0);" onclick="show_log_pannel(1)" style="margin-left:5px;">hbbs运行日志</a>
-														<a type="button" class="ks_btn" href="javascript:void(0);" onclick="show_log_pannel(2)" style="margin-left:5px;">hbbr运行日志</a>
+														<a type="button" class="ks_btn" href="javascript:void(0);" onclick="show_log_pannel(1)" >hbbs运行日志</a>
+														<a type="button" class="ks_btn" href="javascript:void(0);" onclick="show_log_pannel(2)" >hbbr运行日志</a>
 													</td>
 												</tr>
 											</table>
