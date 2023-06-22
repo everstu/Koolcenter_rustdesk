@@ -12,6 +12,7 @@ ARGS=$@
 connect_key=
 hbbsCMD="/koolshare/bin/hbbs"
 hbbrCMD="/koolshare/bin/hbbr"
+ALWAYS_USE_RELAY="N"
 
 set_lock() {
 	exec 233>${LOCK_FILE}
@@ -29,12 +30,12 @@ unset_lock() {
 
 number_test() {
 	case $1 in
-		'' | *[!0-9]*)
+	'' | *[!0-9]*)
 		echo 1
-	;;
+		;;
 	*)
 		echo 0
-	;;
+		;;
 	esac
 }
 
@@ -60,10 +61,13 @@ start() {
 	configServerEnv
 
 	# 1. stop first
+	local pidHbbs=$(pidof hbbs)
 	stop_process
-	echo_date "ℹ️即将休眠 5 秒，等待端口释放..."
-	sleep 5
-	echo_date "ℹ️休眠结束，开启插件..."
+	if [ "z${pidHbbs}" != "z" ]; then
+		echo_date "ℹ️插件重启，即将休眠 10 秒，等待端口释放..."
+		sleep 10
+		echo_date "ℹ️休眠结束，开启插件..."
+	fi
 
 	# 2. start process
 	start_process
@@ -75,7 +79,7 @@ start() {
 	echo_date "✅️插件已成功开启！"
 }
 
-stop_plugin(){
+stop_plugin() {
 	# 1. stop process
 	stop_process
 	# 2.close prot
@@ -86,18 +90,22 @@ stop_plugin(){
 	echo_date "❌️插件已停止运行！"
 }
 
-configServerEnv(){
-	if [ "$rustdesk_is_encrypted" == "1" ];then
+configServerEnv() {
+	if [ "$rustdesk_is_encrypted" == "1" ]; then
 		connect_key=$rustdesk_key_pub
 		hbbsCMD="${hbbsCMD} -k _"
 		hbbrCMD="${hbbrCMD} -k _"
+	fi
+
+	if [ "$rustdesk_always_use_relay" == "1" ]; then
+		ALWAYS_USE_RELAY="Y"
 	fi
 }
 
 start_process() {
 	start_hbbs
 	start_hbbr
-	if [ -z ${bin_all_run} ];then
+	if [ -z ${bin_all_run} ]; then
 		echo_date "❌️进程启动失败，停止插件..."
 		stop_plugin
 		exit
@@ -121,7 +129,7 @@ detect_running_status() {
 	echo_date "🟢$1启动成功，pid：${PID}"
 }
 
-start_hbbs(){
+start_hbbs() {
 	HBBS_RUN_LOG=/tmp/upload/rustdesk_hbbs_run_log.txt
 	rm -rf ${HBBS_RUN_LOG}
 	echo_date "🟠启动 hbbs 进程，开启进程实时守护..."
@@ -132,12 +140,13 @@ start_hbbs(){
 		export DB_URL=${rustdesk_db_flie_path}db_v2.sqlite3
 		export PORT=$rustdesk_hbbs_port
 		export RELAY_SERVERS=$rustdesk_hbbr_host
+		export ALWAYS_USE_RELAY=$ALWAYS_USE_RELAY
 
 		CMD="${hbbsCMD}"
 		if test \${1} = 'start' ; then
-      cd /koolshare/configs/rustdesk/
-      exec >${HBBS_RUN_LOG} 2>&1
-      exec \$CMD
+		      cd /koolshare/configs/rustdesk/
+		      exec >${HBBS_RUN_LOG} 2>&1
+		      exec \$CMD
 		fi
 		exit 0
 
@@ -150,7 +159,7 @@ start_hbbs(){
 	detect_running_status hbbs
 }
 
-start_hbbr(){
+start_hbbr() {
 	HBBR_RUN_LOG=/tmp/upload/rustdesk_hbbr_run_log.txt
 	rm -rf ${HBBR_RUN_LOG}
 	echo_date "🟠启动 hbbr 进程，开启进程实时守护..."
@@ -166,8 +175,8 @@ start_hbbr(){
 		CMD="${hbbrCMD}"
 		if test \${1} = 'start' ; then
 		  cd /koolshare/configs/rustdesk/
-      exec >${HBBR_RUN_LOG} 2>&1
-      exec \$CMD
+		      exec >${HBBR_RUN_LOG} 2>&1
+		      exec \$CMD
 		fi
 		exit 0
 
@@ -180,7 +189,7 @@ start_hbbr(){
 	detect_running_status hbbr
 }
 
-stop_process(){
+stop_process() {
 	kill_process "hbbs"
 	kill_process "hbbr"
 }
@@ -238,7 +247,7 @@ close_port() {
 	fi
 }
 
-check_status(){
+check_status() {
 	local HBBR_PID=$(pidof hbbr)
 	local HBBS_PID=$(pidof hbbs)
 	local status_text="插件未启用"
@@ -258,19 +267,19 @@ check_status(){
 	http_response $status_text
 }
 
-regenerateKey(){
-  echo_date "ℹ️开始重新生成安全密钥对..."
-	/koolshare/bin/rustdesk-utils genkeypair |awk '{print $3}' > /tmp/upload/rustdesk_key_cert.tmp
-  rustdesk_key_pub_tmp=$(cat /tmp/upload/rustdesk_key_cert.tmp |awk 'FNR == 1')
-  rustdesk_key_priv_tmp=$(cat /tmp/upload/rustdesk_key_cert.tmp |awk 'FNR == 2')
+regenerateKey() {
+	echo_date "ℹ️开始重新生成安全密钥对..."
+	/koolshare/bin/rustdesk-utils genkeypair | awk '{print $3}' >/tmp/upload/rustdesk_key_cert.tmp
+	rustdesk_key_pub_tmp=$(cat /tmp/upload/rustdesk_key_cert.tmp | awk 'FNR == 1')
+	rustdesk_key_priv_tmp=$(cat /tmp/upload/rustdesk_key_cert.tmp | awk 'FNR == 2')
 	rm -f /tmp/upload/rustdesk_key_cert.tmp >/dev/null 2>&1
 	# 写入证书
-	echo -n $rustdesk_key_pub_tmp  > /koolshare/configs/rustdesk/id_ed25519.pub
-	echo -n $rustdesk_key_priv_tmp  > /koolshare/configs/rustdesk/id_ed25519
+	echo -n $rustdesk_key_pub_tmp >/koolshare/configs/rustdesk/id_ed25519.pub
+	echo -n $rustdesk_key_priv_tmp >/koolshare/configs/rustdesk/id_ed25519
 	# 设置证书
 	dbus set rustdesk_key_pub=$rustdesk_key_pub_tmp
 	dbus set rustdesk_key_priv=$rustdesk_key_priv_tmp
-  echo_date "🟢安全密钥对生成成功，即将重新启动插件..."
+	echo_date "🟢安全密钥对生成成功，即将重新启动插件..."
 
 	start
 
@@ -283,19 +292,19 @@ start)
 		sleep 20 #延迟启动等待虚拟内存挂载
 		true >${LOG_FILE}
 		start | tee -a ${LOG_FILE}
-		echo XU6J03M16 >> ${LOG_FILE}
+		echo XU6J03M16 >>${LOG_FILE}
 		logger "[软件中心-开机自启]: RustDesk Server自启动成功！"
 	else
 		logger "[软件中心-开机自启]: RustDesk Server未开启，不自动启动！"
 	fi
-;;
+	;;
 boot_up)
 	if [ "${rustdesk_enable}" == "1" ]; then
 		true >${LOG_FILE}
 		start | tee -a ${LOG_FILE}
-		echo XU6J03M16 >> ${LOG_FILE}
+		echo XU6J03M16 >>${LOG_FILE}
 	fi
-;;
+	;;
 start_nat)
 	if [ "${rustdesk_enable}" == "1" ]; then
 		logger "[软件中心-NAT重启]: 打开RustDesk Server防火墙端口！"
@@ -304,10 +313,10 @@ start_nat)
 		sleep 2
 		open_port
 	fi
-;;
+	;;
 stop)
 	stop_plugin
-;;
+	;;
 esac
 
 case $2 in
@@ -328,13 +337,13 @@ web_submit)
 	fi
 	echo XU6J03M16 | tee -a ${LOG_FILE}
 	unset_lock
-;;
+	;;
 regenerateKey)
 	true >/tmp/upload/rustdesk_regenerate_key_log.txt
 	http_response "$1"
-  regenerateKey  | tee -a /tmp/upload/rustdesk_regenerate_key_log.txt
-;;
+	regenerateKey | tee -a /tmp/upload/rustdesk_regenerate_key_log.txt
+	;;
 status)
 	check_status
-;;
+	;;
 esac

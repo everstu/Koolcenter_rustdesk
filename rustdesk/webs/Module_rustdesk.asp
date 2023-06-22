@@ -87,7 +87,7 @@ var count_down;
 var _responseLen;
 var STATUS_FLAG;
 var noChange = 0;
-var params_check = ['rustdesk_is_encrypted'];
+var params_check = ['rustdesk_is_encrypted','rustdesk_always_use_relay'];
 var params_input = ['rustdesk_hbbr_port', 'rustdesk_hbbs_port', 'rustdesk_hbbr_host','rustdesk_key_pub'];
 
 String.prototype.myReplace = function(f, e){
@@ -451,6 +451,13 @@ function open_rustdesk_hint(itemNum) {
 		statusmenu += "&nbsp;&nbsp;&nbsp;&nbsp;示例2：rustdesk.example.com:11115<br/><br/>"
 		_caption = "中继服务器地址";
 	}
+	if (itemNum == 9) {
+		statusmenu = "&nbsp;&nbsp;&nbsp;&nbsp;强制使用中继服务器<br/><br/>"
+		statusmenu += "&nbsp;&nbsp;&nbsp;&nbsp;强制使用中继服务器可减少链接等待时间。<br/><br/>"
+		statusmenu += "&nbsp;&nbsp;&nbsp;&nbsp;默认rustdesk会优先使用打洞连接双方机器，但打洞可能会耗费更多时间去尝试。<br/><br/>"
+		statusmenu += "&nbsp;&nbsp;&nbsp;&nbsp;强制使用中继服务器能减少设备连接时间，但同时可能对带宽要求较高，请慎重开启！！<br/><br/>"
+		_caption = "强制使用中继服务器";
+	}
 
 	return overlib(statusmenu, OFFSETX, 10, OFFSETY, 10, RIGHT, STICKY, WIDTH, 'width', CAPTION, _caption, CLOSETITLE, '');
 
@@ -600,10 +607,16 @@ function guessHbbrPort(obj){
 														<td colspan="2">RustDesk - 设置</td>
 													</tr>
 												</thead>
-												<tr id="dashboard">
+												<tr>
 													<th><a onmouseover="mOver(this, 4)" onmouseout="mOut(this)" class="hintstyle" href="javascript:void(0);">仅允许加密访问</a></th>
 													<td>
 														<input type="checkbox" id="rustdesk_is_encrypted" style="vertical-align:middle;">
+													</td>
+												</tr>
+												<tr>
+													<th><a onmouseover="mOver(this, 9)" onmouseout="mOut(this)" class="hintstyle" href="javascript:void(0);">强制使用中继服务器</a></th>
+													<td>
+														<input type="checkbox" id="rustdesk_always_use_relay" style="vertical-align:middle;">
 													</td>
 												</tr>
 												<tr id="rustdesk_cert_key_tr">
