@@ -561,13 +561,13 @@ function guessHbbrPort(obj){
 								<tr>
 									<td bgcolor="#4D595D" colspan="3" valign="top">
 										<div>&nbsp;</div>
-										<div class="formfonttitle">RustDesk <lable id="rustdesk_version"></lable></div>
+										<div class="formfonttitle">RustDesk Server<lable id="rustdesk_version"></lable></div>
 										<div style="float: right; width: 15px; height: 25px; margin-top: -20px">
 											<img id="return_btn" alt="" onclick="reload_Soft_Center();" align="right" style="cursor: pointer; position: absolute; margin-left: -30px; margin-top: -25px;" title="返回软件中心" src="/images/backprev.png" onmouseover="this.src='/images/backprevclick.png'" onmouseout="this.src='/images/backprev.png'" />
 										</div>
 										<div style="margin: 10px 0 10px 5px;" class="splitLine"></div>
 										<div class="SimpleNote">
-											<a href="https://github.com/rustdesk/rustdesk-server" target="_blank"><em><u>RustDesk</u></em></a>是一款优秀的免费开源的远程控制软件，此插件提供RustDesk自建服务器功能。
+											<a href="https://github.com/rustdesk/rustdesk" target="_blank"><em><u>RustDesk</u></em></a>是一款优秀的免费开源的远程控制软件，此插件提供<a href="https://github.com/rustdesk/rustdesk-server" target="_blank"><em><u>RustDesk Server</u></em></a>自建功能。
 											<span><a type="button" href="https://github.com/everstu/Koolcenter_rustdesk/blob/master/Changelog.txt" target="_blank" class="ks_btn" style="margin-left:5px;" >更新日志</a></span>
 											<span><a type="button" class="ks_btn" href="javascript:void(0);" onclick="get_log(1)" style="margin-left:5px;">插件日志</a></span>
 										</div>
@@ -575,7 +575,7 @@ function guessHbbrPort(obj){
 											<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable">
 												<thead>
 													<tr>
-														<td colspan="2">RustDesk - 状态</td>
+														<td colspan="2">RustDesk Server - 状态</td>
 													</tr>
 												</thead>
 												<tr id="rustdesk_status_tr" style="display: none;">
@@ -604,7 +604,7 @@ function guessHbbrPort(obj){
 											<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable">
 												<thead>
 													<tr>
-														<td colspan="2">RustDesk - 设置</td>
+														<td colspan="2">RustDesk Server - 设置</td>
 													</tr>
 												</thead>
 												<tr>

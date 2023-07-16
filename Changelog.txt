@@ -1,5 +1,9 @@
 KoolCenter RustDesk Server Changelog
 ===========================================
+1.4
+   - add	新增开启插件检测端口占用功能
+   - update rustdesk_server二进制v1.1.8版本（armv7版本，采用upx --lzma --best压缩）
+
 1.3
    - add	新增强制使用中继服务器选项
 
