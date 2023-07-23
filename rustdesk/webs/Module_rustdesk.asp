@@ -646,7 +646,7 @@ function cpoyText(obj){
 												<tr id="rustdesk_cert_key_tr">
 													<th><a onmouseover="mOver(this, 5)" onmouseout="mOut(this)" class="hintstyle" href="javascript:void(0);">加密访问Key<lable id="warn_cdn" style="color:red;margin-left:5px"><lable></a></th>
 													<td>
-													<input type="text" id="rustdesk_key_pub" style="width: 75%;" class="input_3_table" autocorrect="off" autocapitalize="off" style="background-color: rgb(89, 110, 116);" value="" readonly onclick="cpoyText(this);">
+													<input type="text" id="rustdesk_key_pub" style="width: 75%;" class="input_3_table" autocorrect="off" autocapitalize="off" style="background-color: rgb(89, 110, 116);" value="" readonly onclick="cpoyText(this);" title="点击文本框复制KEY">
 														<a type="button" class="ks_btn" href="javascript:void(0);" onclick="regenerateKey()" style="margin-left:5px;">重新生成</a>
 													</td>
 												</tr>
@@ -659,7 +659,7 @@ function cpoyText(obj){
 												<tr id="rustdesk_hbbr_port_tr">
 													<th><a onmouseover="mOver(this, 7)" onmouseout="mOut(this)" class="hintstyle" href="javascript:void(0);">hbbr服务端口</a></th>
 													<td>
-														<input type="text" id="rustdesk_hbbr_port" style="width: 50px;" maxlength="5" class="input_3_table" autocorrect="off" autocapitalize="off" style="background-color: rgb(89, 110, 116);" value="21117" disabled="disabled">
+														<input type="text" id="rustdesk_hbbr_port" style="width: 50px;" maxlength="5" class="input_3_table" autocorrect="off" autocapitalize="off" style="background-color: rgb(89, 110, 116);" value="21117" readonly>
 													</td>
 												</tr>
 												<tr id="rustdesk_hbbr_host_tr">

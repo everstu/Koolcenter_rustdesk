@@ -59,24 +59,27 @@ dbus_rm() {
 
 check_port_used() {
   local port_used=$(netstat -nat | awk -v p1="$hbbs_used_port" -v p2="$hbbs_used_port1" -v p3="$hbbs_used_port2" -v p4="$hbbr_used_port" -v p5="$hbbr_used_port1" '$4 ~ ":"p1"$" || $4 ~ ":"p2"$" || $4 ~ ":"p3"$" || $4 ~ ":"p4"$" || $4 ~ ":"p5"$"' | head -n 1)
-  # 最大尝试6次，如果端口还是被占用，就休眠10秒
-  local tryTimes=5
+  # 最大尝试60次，每次休眠2秒
+  local tryTimes=60
   local is_port_used=0
   # 开始休眠并等待端口释放
   until [ ! -n "$port_used" ]; do
     if [ "$tryTimes" -eq  "0" ]; then
-      echo_date "ℹ️休眠达最大时间，尝试开启插件..."
+      echo_date "⚠️休眠达最大时间，尝试开启插件..."
       return
     fi
-    echo_date "ℹ️检测到端口占用，插件休眠中，剩余尝试次数：$tryTimes"
-    sleep 10
+    local isEcho=$(($tryTimes % 5));
+    if [ "$isEcho" == "0" ];then
+      echo_date "ℹ️检测到端口占用，插件休眠中..."
+    fi
+    sleep 2
     tryTimes=$(($tryTimes - 1))
     is_port_used=1
     port_used=$(netstat -nat | awk -v p1="$hbbs_used_port" -v p2="$hbbs_used_port1" -v p3="$hbbs_used_port2" -v p4="$hbbr_used_port" -v p5="$hbbr_used_port1" '$4 ~ ":"p1"$" || $4 ~ ":"p2"$" || $4 ~ ":"p3"$" || $4 ~ ":"p4"$" || $4 ~ ":"p5"$"' | head -n 1)
   done
   # 端口曾经被占用，现在已经释放
   if [ "$is_port_used" == "1" ]; then
-    echo_date "ℹ️端口已释放，开启插件..."
+    echo_date "🆗️端口已释放，开启插件..."
   fi
 }
 
