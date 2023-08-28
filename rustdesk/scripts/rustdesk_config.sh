@@ -114,17 +114,7 @@ stop_plugin() {
   echo_date "❌️插件已停止运行！"
 }
 
-configServerEnv() {
-  if [ "$rustdesk_is_encrypted" == "1" ]; then
-    connect_key=$rustdesk_key_pub
-    hbbsCMD="${hbbsCMD} -k _"
-    hbbrCMD="${hbbrCMD} -k _"
-  fi
-
-  if [ "$rustdesk_always_use_relay" == "1" ]; then
-    ALWAYS_USE_RELAY="Y"
-  fi
-
+configServerPort(){
   if [ $(number_test ${rustdesk_hbbs_port}) != "0" ]; then
     dbus set rustdesk_hbbs_port="21116"
     dbus set rustdesk_hbbr_port="21117"
@@ -135,6 +125,19 @@ configServerEnv() {
   hbbs_used_port2=$(($hbbs_used_port + 2))
   hbbr_used_port=$(($hbbs_used_port + 1))
   hbbr_used_port1=$(($hbbr_used_port + 2))
+}
+
+configServerEnv() {
+  if [ "$rustdesk_is_encrypted" == "1" ]; then
+    connect_key=$rustdesk_key_pub
+    hbbsCMD="${hbbsCMD} -k _"
+    hbbrCMD="${hbbrCMD} -k _"
+  fi
+
+  if [ "$rustdesk_always_use_relay" == "1" ]; then
+    ALWAYS_USE_RELAY="Y"
+  fi
+  configServerPort
 }
 
 start_process() {
@@ -244,13 +247,16 @@ kill_process() {
 }
 
 open_port() {
+  # 1.math port
+  configServerPort
+  # 2.load xt_comment.ko
   local CM=$(lsmod | grep xt_comment)
   local OS=$(uname -r)
   if [ -z "${CM}" -a -f "/lib/modules/${OS}/kernel/net/netfilter/xt_comment.ko" ]; then
     echo_date "ℹ️加载xt_comment.ko内核模块！"
     insmod /lib/modules/${OS}/kernel/net/netfilter/xt_comment.ko
   fi
-
+  # 3.open port
   local HBBSMATCH=$(iptables -t filter -S INPUT | grep "rustdesk_rule")
   if [ -z "${HBBSMATCH}" ]; then
     echo_date "🧱添加防火墙入站规则..."
