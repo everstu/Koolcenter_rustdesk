@@ -1,7 +1,7 @@
 KoolCenter RustDesk Server Changelog
 ===========================================
 1.4
-   - fix	NAT重启后无法正常防火墙端口未开放的问题
+   - fix	nat重启后防火墙端口未正常开放的问题
    - update	rustdesk_server二进制v1.1.8-2版本
 
 1.4
