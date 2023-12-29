@@ -677,7 +677,7 @@ function cpoyText(obj){
 										</div>
 										<div style="margin: 10px 0 10px 5px;" class="splitLine"></div>
 										<div style="margin:10px 0 0 5px">
-											<li>RustDesk客户端下载地址，全平台支持！<a href="https://rustdesk.com/" target="_blank"><em>点这里前往下载</em></a></li>
+											<li>RustDesk客户端下载地址，全平台支持！<a href="https://rustdesk.com/?ref=koolcenter_rustdesk" target="_blank"><em>点这里前往下载</em></a></li>
 											<li>如有不懂，特别是RustDesk Server配置文件的填写，请查看RustDesk官方文档<a href="https://rustdesk.com/docs/zh-cn/self-host/" target="_blank"><em>点这里看文档</em></a></li>
 											<li>插件使用有任何问题请加入<a href="https://t.me/xbchat" target="_blank"><em><u>koolcenter TG群</u></em></a>或<a href="https://t.me/meilinchajian" target="_blank"><em><u>Mc Chat TG群</u></em></a>联系 @fiswonder<br></li>
 										</div>

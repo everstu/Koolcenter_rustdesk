@@ -66,11 +66,13 @@ check_port_used() {
   until [ ! -n "$port_used" ]; do
     if [ "$tryTimes" -eq  "0" ]; then
       echo_date "⚠️休眠达最大时间，尝试开启插件..."
+      echo_date "⚠️如果自动开启失败请稍后手动开启插件..."
+      is_port_used=0
       return
     fi
     local isEcho=$(($tryTimes % 5));
     if [ "$isEcho" == "0" ];then
-      echo_date "ℹ️检测到端口占用，插件休眠中..."
+      echo_date "ℹ️检测到端口占用，插件休眠中，等耐心等待..."
     fi
     sleep 2
     tryTimes=$(($tryTimes - 1))
@@ -79,7 +81,7 @@ check_port_used() {
   done
   # 端口曾经被占用，现在已经释放
   if [ "$is_port_used" == "1" ]; then
-    echo_date "🆗️端口已释放，开启插件..."
+    echo_date "🆗️端口占用已释放，尝试开启插件..."
   fi
 }
 
