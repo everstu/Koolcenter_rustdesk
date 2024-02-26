@@ -7,5 +7,5 @@
     "module": "rustdesk", 
     "tags": "穿透", 
     "title": "RustDesk Server", 
-    "version": "1.4.2"
+    "version": "1.4.3"
 }
