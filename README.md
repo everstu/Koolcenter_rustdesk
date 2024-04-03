@@ -5,7 +5,12 @@
 
 
 ## 项目地址
+RustDesk:
 https://github.com/rustdesk/rustdesk
+
+RustDesk Server:
+https://github.com/rustdesk/rustdesk-server
+
 
 ## 官方信息  
 

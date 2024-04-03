@@ -258,11 +258,11 @@ open_port() {
     echo_date "ℹ️加载xt_comment.ko内核模块！"
     insmod /lib/modules/${OS}/kernel/net/netfilter/xt_comment.ko
   fi
-  # 3.open port
+  # 3.open v4 port
   local HBBSMATCH=$(iptables -t filter -S INPUT | grep "rustdesk_rule")
   if [ -z "${HBBSMATCH}" ]; then
-    echo_date "🧱添加防火墙入站规则..."
-    echo_date "🧱打开 RustDesk 服务端口：${hbbs_used_port1} ${hbbs_used_port} ${hbbr_used_port} ${hbbs_used_port2} ${hbbr_used_port1}"
+    echo_date "🧱添加IPV4防火墙入站规则..."
+    echo_date "🧱打开 RustDesk IPV4服务端口：${hbbs_used_port1} ${hbbs_used_port} ${hbbr_used_port} ${hbbs_used_port2} ${hbbr_used_port1}"
     iptables -I INPUT -p tcp --dport ${hbbs_used_port1} -j ACCEPT -m comment --comment "rustdesk_rule" >/dev/null 2>&1
     iptables -I INPUT -p tcp --dport ${hbbs_used_port} -j ACCEPT -m comment --comment "rustdesk_rule" >/dev/null 2>&1
     iptables -I INPUT -p udp --dport ${hbbs_used_port} -j ACCEPT -m comment --comment "rustdesk_rule" >/dev/null 2>&1
@@ -270,13 +270,39 @@ open_port() {
     iptables -I INPUT -p tcp --dport ${hbbr_used_port} -j ACCEPT -m comment --comment "rustdesk_rule" >/dev/null 2>&1
     iptables -I INPUT -p tcp --dport ${hbbr_used_port1} -j ACCEPT -m comment --comment "rustdesk_rule" >/dev/null 2>&1
   fi
+  #检测ip6tables是否存在
+  local IP6T=$(which ip6tables)
+		if [ -n "${IP6T}" ]; then
+				# 4.open v6 port
+				local HBBSMATCH6=$(ip6tables -t filter -S INPUT | grep "rustdesk_rule")
+				if [ -z "${HBBSMATCH6}" ]; then
+						echo_date "🧱添加IPV6防火墙入站规则..."
+						echo_date "🧱打开 RustDesk IPV6服务端口：${hbbs_used_port1} ${hbbs_used_port} ${hbbr_used_port} ${hbbs_used_port2} ${hbbr_used_port1}"
+						ip6tables -I INPUT -p tcp --dport ${hbbs_used_port1} -j ACCEPT -m comment --comment "rustdesk_rule" >/dev/null 2>&1
+						ip6tables -I INPUT -p tcp --dport ${hbbs_used_port} -j ACCEPT -m comment --comment "rustdesk_rule" >/dev/null 2>&1
+						ip6tables -I INPUT -p udp --dport ${hbbs_used_port} -j ACCEPT -m comment --comment "rustdesk_rule" >/dev/null 2>&1
+						ip6tables -I INPUT -p tcp --dport ${hbbs_used_port2} -j ACCEPT -m comment --comment "rustdesk_rule" >/dev/null 2>&1
+						ip6tables -I INPUT -p tcp --dport ${hbbr_used_port} -j ACCEPT -m comment --comment "rustdesk_rule" >/dev/null 2>&1
+						ip6tables -I INPUT -p tcp --dport ${hbbr_used_port1} -j ACCEPT -m comment --comment "rustdesk_rule" >/dev/null 2>&1
+				fi
+		fi
 }
 
 close_port() {
+	 #1.close v4 port
   local IPTS=$(iptables -t filter -S | grep "rustdesk_rule" | sed 's/-A/iptables -t filter -D/g')
   if [ -n "${IPTS}" ]; then
-    echo_date "🧱关闭本插件在防火墙上打开的所有端口!"
+    echo_date "🧱关闭本插件在IPV4防火墙上打开的所有端口!"
     iptables -t filter -S | grep "rustdesk_rule" | sed 's/-A/iptables -t filter -D/g' >/tmp/rustdesk_clean.sh
+    chmod +x /tmp/rustdesk_clean.sh
+    sh /tmp/rustdesk_clean.sh >/dev/null 2>&1
+    rm /tmp/rustdesk_clean.sh
+  fi
+  #2.close v6 port
+  local IP6TS=$(ip6tables -t filter -S | grep "rustdesk_rule" | sed 's/-A/ip6tables -t filter -D/g')
+  if [ -n "${IP6TS}" ]; then
+    echo_date "🧱关闭本插件在IPV6防火墙上打开的所有端口!"
+    ip6tables -t filter -S | grep "rustdesk_rule" | sed 's/-A/ip6tables -t filter -D/g' >/tmp/rustdesk_clean.sh
     chmod +x /tmp/rustdesk_clean.sh
     sh /tmp/rustdesk_clean.sh >/dev/null 2>&1
     rm /tmp/rustdesk_clean.sh
