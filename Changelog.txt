@@ -1,5 +1,8 @@
 KoolCenter RustDesk Server Changelog
 ===========================================
+1.4.5
+   - update	rustdesk_server二进制v1.1.11-1版本
+
 1.4.4
    - update 增加IPv6支持，同步开启IPv6防火墙端口。
 
