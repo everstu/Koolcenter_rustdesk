@@ -1,5 +1,9 @@
 KoolCenter RustDesk Server Changelog
 ===========================================
+1.4.6
+   - fix	web页面可能会报错的问题（感谢 @sadog 修复）
+   - update	rustdesk_server二进制v1.1.12版本
+
 1.4.5
    - update	rustdesk_server二进制v1.1.11-1版本
 
