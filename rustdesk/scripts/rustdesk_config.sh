@@ -57,6 +57,34 @@ dbus_rm() {
   fi
 }
 
+check_usb2jffs_used_status() {
+  # 查看当前/jffs的挂载点是什么设备，如/dev/mtdblock9, /dev/sda1；有usb2jffs的时候，/dev/sda1，无usb2jffs的时候，/dev/mtdblock9，出问题未正确挂载的时候，为空
+  local cur_patition=$(df -h | /bin/grep /jffs | awk '{print $1}')
+  local jffs_device="not mount"
+  if [ -n "${cur_patition}" ]; then
+    jffs_device=${cur_patition}
+  fi
+  local mounted_nu=$(mount | /bin/grep "${jffs_device}" | grep -E "/tmp/mnt/|/jffs" | /bin/grep -c "/dev/s")
+  if [ "${mounted_nu}" -eq "2" ]; then
+    echo "1" #已安装并成功挂载
+  else
+    echo "0" #未安装或未挂载
+  fi
+}
+
+start_jffs_test(){
+    if [ $(check_usb2jffs_used_status) == "1" ] && [ "${1}" == "start" ]; then
+      echo_date "➡️检测到已安装插件usb2jffs并成功挂载，插件可以正常启动！"
+    else
+      local LINUX_VER=$(uname -r | awk -F"." '{print $1$2}')
+      if [ "$LINUX_VER" = 41 ]; then # 报错停止
+        echo_date "❌️jffs分区不支持db文件读写，插件停止启动"
+        echo_date "❌️请安装安装usb2jffs插件并成功挂载后再次尝试！"
+        exit 0
+      fi
+    fi
+}
+
 check_port_used() {
   local port_used=$(netstat -nat | awk -v p1="$hbbs_used_port" -v p2="$hbbs_used_port1" -v p3="$hbbs_used_port2" -v p4="$hbbr_used_port" -v p5="$hbbr_used_port1" '$4 ~ ":"p1"$" || $4 ~ ":"p2"$" || $4 ~ ":"p3"$" || $4 ~ ":"p4"$" || $4 ~ ":"p5"$"' | head -n 1)
   # 最大尝试60次，每次休眠2秒
@@ -85,37 +113,6 @@ check_port_used() {
   fi
 }
 
-start() {
-  # 0. config ENV
-  configServerEnv
-
-  # 1. stop first
-  stop_process
-
-  # 2. start process
-  # 2.1 check_port_used
-  check_port_used
-  # 2.2 start process
-  start_process
-
-  # 3. open port
-  close_port >/dev/null 2>&1
-  open_port
-
-  echo_date "✅️插件已成功开启！"
-}
-
-stop_plugin() {
-  # 1. stop process
-  stop_process
-  # 2.close prot
-  close_port >/dev/null 2>&1
-
-  dbus set rustdesk_enable=0
-
-  echo_date "❌️插件已停止运行！"
-}
-
 configServerPort(){
   if [ $(number_test ${rustdesk_hbbs_port}) != "0" ]; then
     dbus set rustdesk_hbbs_port="21116"
@@ -140,33 +137,6 @@ configServerEnv() {
     ALWAYS_USE_RELAY="Y"
   fi
   configServerPort
-}
-
-start_process() {
-  start_hbbs
-  start_hbbr
-  if [ -z ${bin_all_run} ]; then
-    echo_date "❌️进程启动失败，停止插件..."
-    stop_plugin
-    exit
-  fi
-}
-
-detect_running_status() {
-  local BINNAME=$1
-  local PID
-  local i=40
-  until [ -n "${PID}" ]; do
-    usleep 250000
-    i=$(($i - 1))
-    PID=$(pidof ${BINNAME})
-    if [ "$i" -lt 1 ]; then
-      echo_date "🔴$1进程启动失败，请检查你的配置！"
-      bin_all_run=""
-      return
-    fi
-  done
-  echo_date "🟢$1启动成功，pid：${PID}"
 }
 
 start_hbbs() {
@@ -227,11 +197,6 @@ start_hbbr() {
   perpctl A hbbr >/dev/null 2>&1
   perpctl u hbbr >/dev/null 2>&1
   detect_running_status hbbr
-}
-
-stop_process() {
-  kill_process "hbbs"
-  kill_process "hbbr"
 }
 
 kill_process() {
@@ -327,6 +292,70 @@ check_status() {
   fi
 
   http_response $status_text
+}
+
+stop_process() {
+  kill_process "hbbs"
+  kill_process "hbbr"
+}
+
+stop_plugin() {
+  # 1. stop process
+  stop_process
+  # 2.close prot
+  close_port >/dev/null 2>&1
+
+  dbus set rustdesk_enable=0
+
+  echo_date "❌️插件已停止运行！"
+}
+
+start_process() {
+  start_hbbs
+  start_hbbr
+  if [ -z ${bin_all_run} ]; then
+    echo_date "❌️进程启动失败，停止插件..."
+    stop_plugin
+    exit
+  fi
+}
+
+start() {
+  # 0. test jffs and config ENV
+  start_jffs_test "start"
+  configServerEnv
+
+  # 1. stop first
+  stop_process
+
+  # 2. start process
+  # 2.1 check_port_used
+  check_port_used
+  # 2.2 start process
+  start_process
+
+  # 3. open port
+  close_port >/dev/null 2>&1
+  open_port
+
+  echo_date "✅️插件已成功开启！"
+}
+
+detect_running_status() {
+  local BINNAME=$1
+  local PID
+  local i=40
+  until [ -n "${PID}" ]; do
+    usleep 250000
+    i=$(($i - 1))
+    PID=$(pidof ${BINNAME})
+    if [ "$i" -lt 1 ]; then
+      echo_date "🔴$1进程启动失败，请检查你的配置！"
+      bin_all_run=""
+      return
+    fi
+  done
+  echo_date "🟢$1启动成功，pid：${PID}"
 }
 
 regenerateKey() {
