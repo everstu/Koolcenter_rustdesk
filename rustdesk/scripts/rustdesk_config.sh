@@ -140,11 +140,12 @@ configServerEnv() {
 }
 
 start_hbbs() {
-  HBBS_RUN_LOG=/tmp/upload/rustdesk_hbbs_run_log.txt
-  rm -rf ${HBBS_RUN_LOG}
-  echo_date "🟠启动 hbbs 进程，开启进程实时守护..."
-  mkdir -p /koolshare/perp/hbbs
-  cat >/koolshare/perp/hbbs/rc.main <<-EOF
+  rm -rf ${RUN_LOG}
+  local process_name="hbbs"
+  local RUN_LOG=/tmp/upload/rustdesk_${process_name}_run_log.txt
+  echo_date "🟠启动 $process_name 进程，开启进程实时守护..."
+  mkdir -p /koolshare/perp/$process_name
+  cat >/koolshare/perp/$process_name/rc.main <<-EOF
 		#!/bin/sh
 		source /koolshare/scripts/base.sh
 		export DB_URL=${rustdesk_db_flie_path}db_v2.sqlite3
@@ -154,27 +155,28 @@ start_hbbs() {
 
 		CMD="${hbbsCMD}"
 		if test \${1} = 'start' ; then
-		      cd /koolshare/configs/rustdesk/
-		      exec >${HBBS_RUN_LOG} 2>&1
-		      exec \$CMD
+			cd $rustdesk_db_flie_path
+			exec >${RUN_LOG} 2>&1
+			exec \$CMD
 		fi
 		exit 0
 
 	EOF
-  chmod +x /koolshare/perp/hbbs/rc.main
-  chmod +t /koolshare/perp/hbbs/
+  chmod +x /koolshare/perp/$process_name/rc.main
+  chmod +t /koolshare/perp/$process_name/
   sync
-  perpctl A hbbs >/dev/null 2>&1
-  perpctl u hbbs >/dev/null 2>&1
-  detect_running_status hbbs
+  perpctl A $process_name >/dev/null 2>&1
+  perpctl u $process_name >/dev/null 2>&1
+  detect_running_status $process_name
 }
 
 start_hbbr() {
-  HBBR_RUN_LOG=/tmp/upload/rustdesk_hbbr_run_log.txt
-  rm -rf ${HBBR_RUN_LOG}
-  echo_date "🟠启动 hbbr 进程，开启进程实时守护..."
-  mkdir -p /koolshare/perp/hbbr
-  cat >/koolshare/perp/hbbr/rc.main <<-EOF
+  local process_name="hbbr"
+  local RUN_LOG=/tmp/upload/rustdesk_${process_name}_run_log.txt
+  rm -rf ${RUN_LOG}
+  echo_date "🟠启动 $process_name 进程，开启进程实时守护..."
+  mkdir -p /koolshare/perp/$process_name
+  cat >/koolshare/perp/$process_name/rc.main <<-EOF
 		#!/bin/sh
 		source /koolshare/scripts/base.sh
 		export PORT=$hbbs_used_port
@@ -184,19 +186,19 @@ start_hbbr() {
 
 		CMD="${hbbrCMD}"
 		if test \${1} = 'start' ; then
-		  cd /koolshare/configs/rustdesk/
-		      exec >${HBBR_RUN_LOG} 2>&1
+		  cd $rustdesk_db_flie_path
+		      exec >${RUN_LOG} 2>&1
 		      exec \$CMD
 		fi
 		exit 0
 
 	EOF
-  chmod +x /koolshare/perp/hbbr/rc.main
-  chmod +t /koolshare/perp/hbbr/
+  chmod +x /koolshare/perp/$process_name/rc.main
+  chmod +t /koolshare/perp/$process_name/
   sync
-  perpctl A hbbr >/dev/null 2>&1
-  perpctl u hbbr >/dev/null 2>&1
-  detect_running_status hbbr
+  perpctl A $process_name >/dev/null 2>&1
+  perpctl u $process_name >/dev/null 2>&1
+  detect_running_status $process_name
 }
 
 kill_process() {
@@ -365,8 +367,8 @@ regenerateKey() {
   rustdesk_key_priv_tmp=$(cat /tmp/upload/rustdesk_key_cert.tmp | awk 'FNR == 2')
   rm -f /tmp/upload/rustdesk_key_cert.tmp >/dev/null 2>&1
   # 写入证书
-  echo -n $rustdesk_key_pub_tmp >/koolshare/configs/rustdesk/id_ed25519.pub
-  echo -n $rustdesk_key_priv_tmp >/koolshare/configs/rustdesk/id_ed25519
+  echo -n $rustdesk_key_pub_tmp >${rustdesk_db_flie_path}id_ed25519.pub
+  echo -n $rustdesk_key_priv_tmp >${rustdesk_db_flie_path}id_ed25519
   # 设置证书
   dbus set rustdesk_key_pub=$rustdesk_key_pub_tmp
   dbus set rustdesk_key_priv=$rustdesk_key_priv_tmp

@@ -16,10 +16,11 @@
 <link rel="stylesheet" type="text/css" href="/js/table/table.css">
 <link rel="stylesheet" type="text/css" href="/res/layer/theme/default/layer.css">
 <link rel="stylesheet" type="text/css" href="/res/softcenter.css">
+<script type="text/javascript" src="/js/jquery.js"></script>
+<script language="JavaScript" type="text/javascript" src="/res/layer/layer.js"></script>
 <script type="text/javascript" src="/state.js"></script>
 <script type="text/javascript" src="/popup.js"></script>
 <script type="text/javascript" src="/help.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
 <script type="text/javascript" src="/general.js"></script>
 <script type="text/javascript" language="JavaScript" src="/js/table/table.js"></script>
 <script type="text/javascript" src="/res/softcenter.js"></script>
@@ -391,30 +392,28 @@ function hide_log_pannel(){
 }
 
 function regenerateKey(){
-    require(['/res/layer/layer.js'], function(layer) {
-        layer.confirm('确定要重新生成加密访问使用的密钥对吗？', {
-        	shade: 0.8,icon: 3, title:'重新生成密钥对'
-        }, function(index) {
-        	var id = parseInt(Math.random() * 100000000);
-        	var postData = {"id": id, "method": "rustdesk_config.sh", "params": ["regenerateKey"], "fields": []};
-        	console.log(postData);
-        	$.ajax({
-        		type: "POST",
-        		url: "/_api/",
-        		data: JSON.stringify(postData),
-        		dataType: "json",
-        		success: function(response) {
-        			if(response.result == id){
-        				get_log(0,"/_temp/rustdesk_regenerate_key_log.txt");
-        			}
-        		}
-        	});
-        	layer.close(index);
-        	return true;
-        }, function(index) {
-        	layer.close(index);
-        	return false;
+    layer.confirm('确定要重新生成加密访问使用的密钥对吗？', {
+        shade: 0.8,icon: 3, title:'重新生成密钥对'
+    }, function(index) {
+        var id = parseInt(Math.random() * 100000000);
+        var postData = {"id": id, "method": "rustdesk_config.sh", "params": ["regenerateKey"], "fields": []};
+        console.log(postData);
+        $.ajax({
+            type: "POST",
+            url: "/_api/",
+            data: JSON.stringify(postData),
+            dataType: "json",
+            success: function(response) {
+                if(response.result == id){
+                    get_log(0,"/_temp/rustdesk_regenerate_key_log.txt");
+                }
+            }
         });
+        layer.close(index);
+        return true;
+    }, function(index) {
+        layer.close(index);
+        return false;
     });
 }
 
@@ -516,13 +515,11 @@ function guessHbbrPort(obj){
 function cpoyText(obj){
     obj.select();
     const successful = document.execCommand('copy');
-    require(['/res/layer/layer.js'], function(layer) {
-        if(successful){
-        	layer.msg("复制成功",{icon: 6});
-        }else{
-        	layer.msg("复制失败",{icon: 5});
-        }
-    });
+    if(successful){
+        layer.msg("复制成功",{icon: 6});
+    }else{
+        layer.msg("复制失败",{icon: 5});
+    }
 }
 </script>
 </head>
