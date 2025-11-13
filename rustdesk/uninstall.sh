@@ -13,5 +13,10 @@ rm -rf /koolshare/bin/hbbs >/dev/null 2>&1
 rm -rf /koolshare/bin/rustdesk-utils >/dev/null 2>&1
 echo_date "插件资源文件删除成功..."
 
+echo_date "删除插件存储证书和私钥..."
+dbus remove rustdesk_key_priv
+dbus remove rustdesk_key_pub
+echo_date "证书和私钥删除成功..."
+
 rm -rf /koolshare/scripts/uninstall_rustdesk.sh
 echo_date "已成功移除插件... Bye~Bye~"
