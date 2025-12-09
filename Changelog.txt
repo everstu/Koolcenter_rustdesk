@@ -1,6 +1,6 @@
 KoolCenter RustDesk Server Changelog
 ===========================================
-1.4.7
+1.4.8
    - fix	调整页面js和css加载文件。
 
 1.4.7
