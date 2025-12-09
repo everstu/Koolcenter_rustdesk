@@ -1,6 +1,9 @@
 KoolCenter RustDesk Server Changelog
 ===========================================
 1.4.7
+   - fix	调整页面js和css加载文件。
+
+1.4.7
    - fix	jffs分区文件系统不支持导致无限重启的问题
    - update	rustdesk_server二进制v1.1.14版本
 
